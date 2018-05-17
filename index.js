@@ -15,14 +15,14 @@ const slackEvents = slackEventsApi.createSlackEventAdapter(
 
 const slack = new SlackClient(process.env.SLACK_BOT_TOKEN);
 
-function extractImage(message) {
+function extractImageURL(message) {
   if (message.subtype === "file_share") {
     const { file } = message;
     if (file.mimetype.indexOf("image/") === 0) {
       return file.url_private;
     }
   } else if (message.subtype === "message_changed") {
-    return extractImage(message.message);
+    return extractImageURL(message.message);
   } else if (message.attachments) {
     if (message.attachments.length > 0) {
       const url = message.attachments[0].image_url;
@@ -97,8 +97,8 @@ app.get("/image/redirect", function(req, res) {
 app.use("/", express.static("public"));
 
 slackEvents.on("message", message => {
-  const imgSrc = extractImage(message);
-  image.set({ src: imgSrc });
+  const src = extractImageURL(message);
+  image.set({ src });
 });
 
 slackEvents.on("error", error => {
