@@ -15,7 +15,6 @@ const slackEvents = slackEventsApi.createSlackEventAdapter(
 const slack = new SlackClient(process.env.SLACK_BOT_TOKEN);
 
 function extractImage(message) {
-  console.log(message);
   if (message.subtype === "file_share") {
     const { file } = message;
     if (file.mimetype.indexOf("image/") === 0) {
@@ -24,9 +23,18 @@ function extractImage(message) {
       throw "only images for now plz";
     }
   } else if (message.subtype === "message_changed") {
-    console.log(message.message.attachment);
-  } else if (message.attachment) {
-    console.log(message.attachment);
+    return extractImage(message.message);
+  } else if (message.attachments) {
+    if (message.attachments.length > 0) {
+      const url = message.attachments[0].image_url;
+      if (url) {
+        return url;
+      } else {
+        throw "that doesn't look like anything to me";
+      }
+    }
+  } else {
+    throw "that doesn't look like anything to me";
   }
 }
 
@@ -94,6 +102,8 @@ app.get("/image/redirect", function(req, res) {
 app.use("/", express.static("public"));
 
 slackEvents.on("message", message => {
+  if (message.bot_id) return;
+
   try {
     const imgSrc = extractImage(message);
     image.set({ src: imgSrc });
