@@ -47,14 +47,7 @@ class Cell {
   set(data) {
     fs.writeFileSync(this.path, JSON.stringify(data));
     this.data = data;
-    setTimeout(() => this.publish(data));
-  }
-
-  publish(data) {
-    for (const cb of this.cbs) {
-      cb(data);
-    }
-    this.cbs.clear();
+    setTimeout(() => this._publish(data));
   }
 
   subscribe(cb) {
@@ -64,6 +57,13 @@ class Cell {
 
   unsubscribe(cb) {
     this.cbs.delete(cb);
+  }
+
+  _publish(data) {
+    for (const cb of this.cbs) {
+      cb(data);
+    }
+    this.cbs.clear();
   }
 }
 
