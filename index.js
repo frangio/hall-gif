@@ -44,7 +44,6 @@ class Cell {
   set(data) {
     fs.writeFileSync(this.path, JSON.stringify(data));
     this.data = data;
-
     setTimeout(() => this.publish(data));
   }
 
@@ -96,8 +95,8 @@ app.use("/", express.static("public"));
 
 slackEvents.on("message", message => {
   try {
-    const img = extractImage(message);
-    setImage(img);
+    const imgSrc = extractImage(message);
+    image.set({ src: imgSrc });
   } catch (e) {
     slack.chat.postMessage(message.channel, e).catch(console.error);
   }
