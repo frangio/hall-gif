@@ -7,6 +7,7 @@ const http = require("http");
 const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
+const path = require("path");
 
 const slackEvents = slackEventsApi.createSlackEventAdapter(
   process.env.SLACK_VERIFICATION_TOKEN
@@ -33,8 +34,8 @@ function extractImage(message) {
 }
 
 class Cell {
-  constructor(path) {
-    this.path = path;
+  constructor(filename) {
+    this.path = path.join(".data", filename);
     this.data = JSON.parse(fs.readFileSync(this.path));
     this.cbs = new Set();
   }
