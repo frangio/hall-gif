@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: #222222;
+}
+
+#img {
+  height: 100%;
+  background-image: url(/image/redirect);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+    </style>
+  </head>
+  <body>
+    <div id="img"></div>
+
+    <script>
+async function main() {
+  const res = await fetch("/image/poll");
+
+  if (res.status === 205) {
+    window.location.reload(true);
+  } else {
+    return main();
+  }
+}
+
+main().catch(console.error);
+    </script>
+  </body>
+</html>

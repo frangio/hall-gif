@@ -8,19 +8,11 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 
-// *** Initialize event adapter using verification token from environment variables ***
 const slackEvents = slackEventsApi.createSlackEventAdapter(
   process.env.SLACK_VERIFICATION_TOKEN
 );
 
 const slack = new SlackClient(process.env.SLACK_BOT_TOKEN);
-
-const IMAGE_URL_FILE = ".data/image-url";
-
-function setImage(url) {
-  fs.writeFileSync(IMAGE_URL_FILE, url);
-  console.log(`Setting new image ${url}`);
-}
 
 function extractImage(message) {
   console.log(message);
@@ -38,20 +30,70 @@ function extractImage(message) {
   }
 }
 
-// Initialize an Express application
+class Cell {
+  constructor(path) {
+    this.path = path;
+    this.data = JSON.parse(fs.readFileSync(this.path));
+    this.cbs = new Set();
+  }
+
+  get() {
+    return this.data;
+  }
+
+  set(data) {
+    fs.writeFileSync(this.path, JSON.stringify(data));
+    this.data = data;
+
+    setTimeout(() => this.publish(data));
+  }
+
+  publish(data) {
+    for (const cb of this.cbs) {
+      cb(data);
+    }
+    this.cbs.clear();
+  }
+
+  subscribe(cb) {
+    this.cbs.add(cb);
+    return cb;
+  }
+
+  unsubscribe(cb) {
+    this.cbs.delete(cb);
+  }
+}
+
+const image = new Cell("image.json");
+
 const app = express();
 
-app.use(bodyParser.json());
-
-app.get("/", (req, res) => {
-  const img = fs.readFileSync(IMAGE_URL_FILE);
-  res.send(`<img src="${img}">`);
-});
-
-// *** Plug the event adapter into the express app as middleware ***
+app.use("/slack/events", bodyParser.json());
 app.use("/slack/events", slackEvents.expressMiddleware());
 
-// *** Greeting any user that says "hi" ***
+app.get("/image/poll", function(req, res) {
+  req.on("close", function() {
+    image.unsubscribe(sub);
+  });
+
+  const sub = image.subscribe(function(data) {
+    res.sendStatus(205);
+  });
+});
+
+// // useful for testing locally
+// app.get("/image/set", function(req, res) {
+//   image.set(req.query);
+//   res.sendStatus(200);
+// });
+
+app.get("/image/redirect", function(req, res) {
+  res.redirect(303, image.get().src);
+});
+
+app.use("/", express.static("public"));
+
 slackEvents.on("message", message => {
   try {
     const img = extractImage(message);
@@ -61,7 +103,6 @@ slackEvents.on("message", message => {
   }
 });
 
-// *** Handle errors ***
 slackEvents.on("error", error => {
   if (error.code === slackEventsApi.errorCodes.TOKEN_VERIFICATION_FAILURE) {
     // This error type also has a `body` propery containing the request body which failed verification.
@@ -74,7 +115,6 @@ ${JSON.stringify(error.body)}`);
   }
 });
 
-// Start the express application
 const port = process.env.PORT || 3000;
 http.createServer(app).listen(port, () => {
   console.log(`server listening on port ${port}`);
