@@ -97,7 +97,9 @@ app.use("/", express.static("public"));
 
 slackEvents.on("message", message => {
   const src = extractImageURL(message);
-  image.set({ src });
+  if (src) {
+    image.set({ src });
+  }
 });
 
 slackEvents.on("error", error => {
