@@ -1,4 +1,3 @@
-// Load environment variables from `.env` file (optional)
 require("dotenv").config();
 
 const slackEventsApi = require("@slack/events-api");
