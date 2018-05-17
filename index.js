@@ -19,8 +19,6 @@ function extractImage(message) {
     const { file } = message;
     if (file.mimetype.indexOf("image/") === 0) {
       return file.url_private;
-    } else {
-      throw "only images for now plz";
     }
   } else if (message.subtype === "message_changed") {
     return extractImage(message.message);
@@ -29,12 +27,8 @@ function extractImage(message) {
       const url = message.attachments[0].image_url;
       if (url) {
         return url;
-      } else {
-        throw "that doesn't look like anything to me";
       }
     }
-  } else {
-    throw "that doesn't look like anything to me";
   }
 }
 
@@ -102,14 +96,8 @@ app.get("/image/redirect", function(req, res) {
 app.use("/", express.static("public"));
 
 slackEvents.on("message", message => {
-  if (message.bot_id) return;
-
-  try {
-    const imgSrc = extractImage(message);
-    image.set({ src: imgSrc });
-  } catch (e) {
-    slack.chat.postMessage(message.channel, e).catch(console.error);
-  }
+  const imgSrc = extractImage(message);
+  image.set({ src: imgSrc });
 });
 
 slackEvents.on("error", error => {
