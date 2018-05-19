@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "A Slack bot which receives images and displays them in a website.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "author": "Francisco Giordano <frangio.1@gmail.com>",
   "license": "MIT",
