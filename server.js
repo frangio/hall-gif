@@ -83,11 +83,12 @@ app.get("/image/poll", function(req, res) {
   });
 });
 
-// // useful for testing locally
-// app.get("/image/set", function(req, res) {
-//   image.set(req.query);
-//   res.sendStatus(200);
-// });
+if (app.get("env") === "development") {
+  app.get("/image/set", function(req, res) {
+    image.set(req.query);
+    res.sendStatus(200);
+  });
+}
 
 app.get("/image/redirect", function(req, res) {
   res.redirect(303, image.get().src);
