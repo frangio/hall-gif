@@ -93,6 +93,7 @@ app.get("/image/redirect", function(req, res) {
   res.redirect(303, image.get().src);
 });
 
+app.use("/", express.static("build"));
 app.use("/", express.static("static"));
 
 slackEvents.on("message", message => {
