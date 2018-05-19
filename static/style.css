@@ -1,0 +1,40 @@
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+html {
+  font-size: 2vw;
+}
+
+body {
+  margin: 0;
+  background-color: #222222;
+}
+
+#frame {
+  height: 100%;
+  background-image: url(/image/redirect);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+button {
+  font-size: 1rem;
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  border-radius: .75rem;
+  background-color: rgba(0, 0, 0, .75);
+  color: white;
+  border: none;
+  padding: 1rem;
+}
+
+:-moz-full-screen button {
+  display: none;
+}
+:-webkit-full-screen button {
+  display: none;
+}

@@ -4,6 +4,8 @@ dependencies:
   body-parser: 1.18.3
   dotenv: 4.0.0
   express: 4.16.3
+  nosleep.js: 0.7.0
+  screenfull: 3.3.2
 devDependencies:
   eslint: 4.19.1
   eslint-config-prettier: 2.9.0
@@ -4249,6 +4251,10 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-D6MUW4K/VzoJ4rJ01JFKxDrtY1v9wrgzCX5f2qj/lzH1m/lW6MhUZFKerVsnyjOhOsYzI9Kqqak+10l4LvLpMw==
+  /nosleep.js/0.7.0:
+    dev: false
+    resolution:
+      integrity: sha1-z9kZwlUjyg0PSmn7MwXAg62u4ok=
   /npm-run-path/2.0.2:
     dependencies:
       path-key: 2.0.1
@@ -5283,6 +5289,12 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha1-o0a7Gs1CB65wvXwMfKnlZra63bg=
+  /screenfull/3.3.2:
+    dev: false
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha512-zrnT8EidEWGFkmXEa1d/YUYNvvJaMX05g4O82K+Oiy9jR6Fh3ZTsovsccJOjRJyhS0KPV7AQpDFQRAYXBl9a5A==
   /semver/5.0.3:
     dev: false
     resolution:
@@ -6417,6 +6429,8 @@ specifiers:
   eslint-config-prettier: ^2.9.0
   eslint-plugin-prettier: ^2.6.0
   express: ^4.14.1
+  nosleep.js: ^0.7.0
   prettier: ^1.12.1
+  screenfull: ^3.3.2
   webpack: ^4.8.3
   webpack-cli: ^2.1.3

@@ -1,3 +1,23 @@
+import screenfull from 'screenfull';
+import NoSleep from 'nosleep.js';
+
+const noSleep = new NoSleep();
+
+function goFullscreen() {
+  if (screenfull.enabled) {
+    screenfull.request();
+    noSleep.enable();
+  }
+}
+
+screenfull.on('change', function() {
+  if (!screenfull.isFullscreen) {
+    noSleep.disable();
+  }
+});
+
+global.goFullscreen = goFullscreen;
+
 async function refresh() {
   const res = await fetch("/image/poll");
 
