@@ -1,12 +1,12 @@
-require("dotenv").config();
+require('dotenv').config();
 
-const slackEventsApi = require("@slack/events-api");
-const SlackClient = require("@slack/client").WebClient;
-const http = require("http");
-const express = require("express");
-const bodyParser = require("body-parser");
-const fs = require("fs");
-const path = require("path");
+const slackEventsApi = require('@slack/events-api');
+const SlackClient = require('@slack/client').WebClient;
+const http = require('http');
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const path = require('path');
 
 const slackEvents = slackEventsApi.createSlackEventAdapter(
   process.env.SLACK_VERIFICATION_TOKEN
@@ -15,12 +15,12 @@ const slackEvents = slackEventsApi.createSlackEventAdapter(
 const slack = new SlackClient(process.env.SLACK_BOT_TOKEN);
 
 function extractImageURL(message) {
-  if (message.subtype === "file_share") {
+  if (message.subtype === 'file_share') {
     const { file } = message;
-    if (file.mimetype.indexOf("image/") === 0) {
+    if (file.mimetype.indexOf('image/') === 0) {
       return file.url_private;
     }
-  } else if (message.subtype === "message_changed") {
+  } else if (message.subtype === 'message_changed') {
     return extractImageURL(message.message);
   } else if (message.attachments) {
     if (message.attachments.length > 0) {
@@ -34,7 +34,7 @@ function extractImageURL(message) {
 
 class Cell {
   constructor(filename) {
-    this.path = path.join(".data", filename);
+    this.path = path.join('.data', filename);
     this.data = JSON.parse(fs.readFileSync(this.path));
     this.cbs = new Set();
   }
@@ -66,15 +66,15 @@ class Cell {
   }
 }
 
-const image = new Cell("image.json");
+const image = new Cell('image.json');
 
 const app = express();
 
-app.use("/slack/events", bodyParser.json());
-app.use("/slack/events", slackEvents.expressMiddleware());
+app.use('/slack/events', bodyParser.json());
+app.use('/slack/events', slackEvents.expressMiddleware());
 
-app.get("/image/poll", function(req, res) {
-  req.on("close", function() {
+app.get('/image/poll', function(req, res) {
+  req.on('close', function() {
     image.unsubscribe(sub);
   });
 
@@ -83,28 +83,28 @@ app.get("/image/poll", function(req, res) {
   });
 });
 
-if (app.get("env") === "development") {
-  app.get("/image/set", function(req, res) {
+if (app.get('env') === 'development') {
+  app.get('/image/set', function(req, res) {
     image.set(req.query);
     res.sendStatus(200);
   });
 }
 
-app.get("/image/redirect", function(req, res) {
+app.get('/image/redirect', function(req, res) {
   res.redirect(303, image.get().src);
 });
 
-app.use("/", express.static("build"));
-app.use("/", express.static("static"));
+app.use('/', express.static('build'));
+app.use('/', express.static('static'));
 
-slackEvents.on("message", message => {
+slackEvents.on('message', message => {
   const src = extractImageURL(message);
   if (src) {
     image.set({ src });
   }
 });
 
-slackEvents.on("error", error => {
+slackEvents.on('error', error => {
   if (error.code === slackEventsApi.errorCodes.TOKEN_VERIFICATION_FAILURE) {
     // This error type also has a `body` propery containing the request body which failed verification.
     console.error(`An unverified request was sent to the Slack events Request URL. Request body: \

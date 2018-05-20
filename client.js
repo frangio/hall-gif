@@ -1,5 +1,5 @@
-const screenfull = require("screenfull");
-const NoSleep = require("nosleep.js");
+const screenfull = require('screenfull');
+const NoSleep = require('nosleep.js');
 
 const noSleep = new NoSleep();
 
@@ -10,7 +10,7 @@ function goFullscreen() {
   }
 }
 
-screenfull.on("change", function() {
+screenfull.on('change', function() {
   if (!screenfull.isFullscreen) {
     noSleep.disable();
   }
