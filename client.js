@@ -18,29 +18,10 @@ screenfull.on('change', function() {
 
 global.goFullscreen = goFullscreen;
 
-async function refresh() {
-  const res = await fetch("/image/poll");
+const stream = new EventSource('/stream');
 
-  if (res.status === 205) {
-    window.location.reload(true);
-  }
-}
-
-function sleep(ms) {
-  return new Promise(function(resolve) {
-    setTimeout(resolve, ms);
-  });
-}
-
-async function main() {
-  while (true) {
-    try {
-      await refresh();
-    } catch (e) {
-      console.error(e);
-      await sleep(1000);
-    }
-  }
-}
-
-main().catch(console.error);
+stream.addEventListener('message', function(e) {
+  const data = JSON.parse(e.data);
+  const img = document.querySelector('#content');
+  img.src = data.src;
+});

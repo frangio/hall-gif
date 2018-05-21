@@ -35,18 +35,22 @@ function extractImageURL(message) {
 class Cell {
   constructor(filename) {
     this.path = path.join('.data', filename);
-    this.data = JSON.parse(fs.readFileSync(this.path));
+    this.asString = new String(fs.readFileSync(this.path));
+    this.data = JSON.parse(this.asString);
     this.cbs = new Set();
   }
 
   get() {
-    return this.data;
+    return this.asString;
   }
 
   set(data) {
-    fs.writeFileSync(this.path, JSON.stringify(data));
     this.data = data;
-    setTimeout(() => this._publish(data));
+    this.asString = JSON.stringify(data);
+    fs.writeFileSync(this.path, this.asString);
+    for (const cb of this.cbs) {
+      cb(this.asString);
+    }
   }
 
   subscribe(cb) {
@@ -57,13 +61,6 @@ class Cell {
   unsubscribe(cb) {
     this.cbs.delete(cb);
   }
-
-  _publish(data) {
-    for (const cb of this.cbs) {
-      cb(data);
-    }
-    this.cbs.clear();
-  }
 }
 
 const image = new Cell('image.json');
@@ -73,13 +70,17 @@ const app = express();
 app.use('/slack/events', bodyParser.json());
 app.use('/slack/events', slackEvents.expressMiddleware());
 
-app.get('/image/poll', function(req, res) {
-  req.on('close', function() {
-    image.unsubscribe(sub);
-  });
+app.get('/stream', function(req, res) {
+  res.type('text/event-stream');
+
+  res.write(`data: ${image.get()}\n\n`);
 
   const sub = image.subscribe(function(data) {
-    res.sendStatus(205);
+    res.write(`data: ${data}\n\n`);
+  });
+
+  req.on('close', function() {
+    image.unsubscribe(sub);
   });
 });
 
@@ -89,10 +90,6 @@ if (app.get('env') === 'development') {
     res.sendStatus(200);
   });
 }
-
-app.get('/image/redirect', function(req, res) {
-  res.redirect(303, image.get().src);
-});
 
 app.use('/', express.static('build'));
 app.use('/', express.static('static'));
