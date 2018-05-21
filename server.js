@@ -91,8 +91,7 @@ if (app.get('env') === 'development') {
   });
 }
 
-app.use('/', express.static('build'));
-app.use('/', express.static('static'));
+app.use('/', express.static('dist'));
 
 slackEvents.on('message', message => {
   const src = extractImageURL(message);
